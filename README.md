@@ -1,4 +1,4 @@
-## My Project
+# aws-sam-custom-lib-optimized-setup
 
 TODO: Fill this README out!
 

@@ -1,0 +1,3 @@
+[submodule "aws-sam-custom-lib"]
+	path = aws-sam-custom-lib
+	url = git@github.com:aws-samples/aws-sam-custom-lib.git
