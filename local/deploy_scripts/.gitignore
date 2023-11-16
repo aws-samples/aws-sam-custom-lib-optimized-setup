@@ -1,0 +1,16 @@
+# Python
+.coverage
+*.pyc
+__pycache__/
+.venv/
+.env/
+.pytest_cache/
+
+# MacOS
+.DS_Store
+
+# IDE
+.vscode/
+
+# AWS SAM Build
+.aws-sam/

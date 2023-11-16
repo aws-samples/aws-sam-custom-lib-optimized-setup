@@ -1,7 +1,7 @@
 import logging
 import json
 
-from custom_logger.app_logger import setup_logger
+from customlib.custom_logger.app_logger import setup_logger
 
 setup_logger("app")
 logger = logging.getLogger("app")
