@@ -26,9 +26,29 @@ Resources:
           Properties:
             Path: /hello
             Method: get
+            RestApiId: !Ref Api
       Layers:
         - !Ref CustomLibLayer
       Tracing: Active
+  
+  Api:
+    Type: AWS::Serverless::Api
+    Properties:
+      AccessLogSetting:
+        DestinationArn: !GetAtt ApiGatewayLogGroup.Arn
+        Format: $context.extendedRequestId $context.identity.sourceIp $context.identity.caller $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.responseLength $context.requestId
+      StageName: dev
+      Auth:
+        ApiKeyRequired: true
+  
+  ApiGatewayLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 30
+      LogGroupName: !Join
+        - '-'
+        - - !Ref Api
+          - access-logs
   
   CustomLibLayer:
     Type: AWS::Serverless::LayerVersion
@@ -37,10 +57,31 @@ Resources:
       Description: Dependencies for sam app
       ContentUri: ../aws-sam-custom-lib/src/
       CompatibleRuntimes:
+        - python3.10
         - python3.9
         - python3.8
         - python3.7
       LicenseInfo: 'MIT'
       RetentionPolicy: Retain
     Metadata:
-      BuildMethod: python3.9
+      BuildMethod: python3.10
+  
+  ApiGatewayRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - apigateway.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+  
+  ApiGatewayAccount:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn: !GetAtt ApiGatewayRole.Arn
