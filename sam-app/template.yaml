@@ -18,6 +18,9 @@ Resources:
       CodeUri: hello_world/
       Handler: app.lambda_handler
       Runtime: python3.10
+      ReservedConcurrentExecutions: 20
+      DeadLetterQueue:
+        TargetArn: !Fn::GetAtt FunctionDLQ.Arn
       Architectures:
         - x86_64
       Events:
@@ -40,6 +43,8 @@ Resources:
       StageName: dev
       Auth:
         ApiKeyRequired: true
+      CacheClusterEnabled: true
+      TracingEnabled: true
   
   ApiGatewayLogGroup:
     Type: AWS::Logs::LogGroup
@@ -49,6 +54,7 @@ Resources:
         - '-'
         - - !Ref Api
           - access-logs
+      KmsKeyId: !GetAtt LogGroupKMSKey.Arn
   
   CustomLibLayer:
     Type: AWS::Serverless::LayerVersion
@@ -85,3 +91,49 @@ Resources:
     Type: AWS::ApiGateway::Account
     Properties:
       CloudWatchRoleArn: !GetAtt ApiGatewayRole.Arn
+  
+  FunctionDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      KmsMasterKeyId: !GetAtt SQSKey.Arn
+  
+  LogGroupKMSKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Enabled: true
+      EnableKeyRotation: true
+      KeyPolicy: 
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: !Sub "logs.${AWS::Region}.amazonaws.com"
+            Action: "kms:*"
+            Resource: "*"
+            Condition:
+              ArnLike:
+                kms:EncryptionContext:aws:logs:arn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*"
+      KeySpec: "String"
+      KeyUsage: "String"
+      MultiRegion: false
+      Origin: "String"
+      PendingWindowInDays: Number
+      Tags: 
+        Tags
+  
+  SQSKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Enabled: true
+      EnableKeyRotation: true
+      KeyPolicy: 
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+            Action: "kms:*"
+            Resource: "*"
+            Condition:
+              ArnLike:
+                kms:EncryptionContext:aws:sqs:arn: !Sub "arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:*"
