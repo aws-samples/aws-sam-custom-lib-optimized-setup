@@ -6,6 +6,9 @@ This sample demonstrates how to build and install custom dependencies that abstr
 
 The sample uses a "hello world" sam application that uses a custom logger defined in a git submodule. The custom logger will be installed by following the steps detailed in this Readme.
 
+> [!NOTE]  
+> Note that the template defined in sam-app is intended to facilitate local development. It is not intended to be deployed as-is in a production environment. To productionize the template, please ensure security best-practices are followed, including making sure the Lambda function is deployed in a VPC.
+
 ## Setup
 
 See the local dir's [Readme](./local/README.md)
