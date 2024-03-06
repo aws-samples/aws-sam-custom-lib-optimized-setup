@@ -1,5 +1,8 @@
 # sam-app
 
+> [!NOTE]  
+> Note that the template defined in sam-app is intended to facilitate local development. It is not intended to be deployed as-is in a production environment. To productionize the template, please ensure security best-practices are followed, including making sure the Lambda function is deployed in a VPC.
+
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
 
 - hello_world - Code for the application's Lambda function.
